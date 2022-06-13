@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:excel="http://www.mulesoft.org/schema/mule/excel" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/excel http://www.mulesoft.org/schema/mule/excel/current/mule-excel.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="7068de82-20fb-48fa-83a1-f313d144260a" >
+		<file:connection workingDir="C:\Users\allem\OneDrive\Desktop" />
+	</file:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3c67dc45-e32b-4a00-98e4-b043baf77cb4" basePath="/" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="outputconfig" doc:name="File Config" doc:id="771f7f2e-da6b-4d27-afc2-3c1328ca3ee9" >
+		<file:connection workingDir="C:\Users\allem\OneDrive\Desktop\output" />
+	</file:config>
+	<flow name="excel2wsFlow" doc:id="4264bd08-adb6-402e-81b7-140a29b2675b" >
+		<http:listener doc:name="Listener" doc:id="11598061-15c8-4835-8b47-04ed2ab7f941" config-ref="HTTP_Listener_config" path="/json"/>
+		<file:read doc:name="Read" doc:id="1318d1cc-6279-49af-abb1-46529f886487" config-ref="File_Config" path="inventory.xlsx" outputMimeType="application/xlsx"/>
+		<ee:transform doc:name="Transform Message" doc:id="fd9a9267-f17e-497a-858c-9e994213e709" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="fafd60f4-54b0-49b4-b3bc-decbf7b2d467" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"Inventory":
+payload['Sheet1']
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="55e312ce-98a2-49fc-befc-79c7100a614f" config-ref="outputconfig" path="json.out"/>
+	</flow>
+	<flow name="Copy_of_excel2wsFlow" doc:id="2693657f-9c32-43d4-9bdf-9717985bc926" >
+		<http:listener doc:name="Copy_of_Listener" doc:id="cebcc4d0-c2bd-4977-a6bb-48fcf4223e32" config-ref="HTTP_Listener_config" path="/xml" />
+		<file:read doc:name="Copy_of_Read" doc:id="f1791b60-d088-48c9-a086-af609d941046" config-ref="File_Config" path="inventory.xlsx" outputMimeType="application/xlsx" />
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="a1febad0-7291-4ee7-abca-6dd50ad5d7cd">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="c3d3d666-e58a-40e7-8bcf-1a55cbcf960b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+"Inventory":
+{
+"InventoryItem": payload.'Sheet1' map (n, idx) -> n
+}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="a52689b0-6b6c-4fef-b568-84eb0c718c1c" config-ref="outputconfig" path="xml.out"/>
+	</flow>
+</mule>

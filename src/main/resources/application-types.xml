@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="sheetjson" format="json">
+      <types:shape format="weave" example="examples/sheetjsonexample.json"><![CDATA[%dw 2.0
+
+type sheetjson = {|
+  Sheet1: Array<{|    Id: Number {"typeId": "int"},     Name: String,     Quantity: Number {"typeId": "int"}  |}>
+|} {"example": "{\\\"Sheet1\\\":[{\\\"Id\\\":1,\\\"Name\\\":\\\"Tennis Ball\\\",\\\"Quantity\\\":7},{\\\"Id\\\":2,\\\"Name\\\":\\\"Tennis Racket\\\",\\\"Quantity\\\":3},{\\\"Id\\\":3,\\\"Name\\\":\\\"Football\\\",\\\"Quantity\\\":9},{\\\"Id\\\":4,\\\"Name\\\":\\\"Baseball\\\",\\\"Quantity\\\":20},{\\\"Id\\\":5,\\\"Name\\\":\\\"Glove\\\",\\\"Quantity\\\":4}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#fd9a9267-f17e-497a-858c-9e994213e709">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="sheetjson"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#a1febad0-7291-4ee7-abca-6dd50ad5d7cd">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="sheetjson"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
